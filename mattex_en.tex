@@ -1,0 +1,512 @@
+% PREAMBLE
+
+% PACKAGE LOADING
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{minted}
+\usepackage{fancyvrb}
+\usepackage{color}
+\usepackage{siunitx}
+\usepackage{parskip}
+\usepackage[english]{babel}
+\usepackage[babel]{microtype}
+\usepackage{makeidx}
+
+
+% PACKAGE OPTIONS
+\sisetup{
+	separate-uncertainty = true,
+}
+
+\usemintedstyle{bw}
+\renewcommand{\theFancyVerbLine}{\textcolor[rgb]{0.4,0.4,0.4}{\scriptsize{\arabic{FancyVerbLine}}}}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\newminted{tex}{linenos=none,mathescape,bgcolor=bg,gobble=2}
+\newminted{matlab}{linenos=none,mathescape,gobble=2,bgcolor=bg}
+\DefineShortVerb{\|}
+\makeindex
+
+
+% META
+\author{Romeo Van Snick\\
+\href{mailto:romeovs@gmail.com}{\nolinkurl{romeovs@gmail.com}}}
+\date{\today}
+\title{The \mt package}
+
+
+% MACRO's
+\newcommand{\mt}{Mat\TeX\ }
+
+\newcommand\argu[1]{{\color{black}$\langle$\textit{#1}$\rangle$}}
+\newcommand\ARGU[1]{\texttt{\{}\argu{#1}\texttt{\}}}
+\newcommand\co[0]{\color{violet}}
+
+\newcommand\mtmrg[1]{\marginpar{\texttt{#1}}}
+\newcommand\mmrg[1]{\index{#1@\texttt{#1}}\mtmrg{#1}}
+\newcommand\mrg[1]{\index{#1@\texttt{\textbackslash #1}}\mtmrg{\textbackslash #1}}
+\renewcommand{\labelitemi}{\( \cdot \)}
+
+
+
+\begin{document}
+\maketitle
+
+% INTRO
+\mt is a rudimentary set of \LaTeX\ macros and matlab scripts that try to make your life easier when you are working with calculated matlab or octave numerical values in a \LaTeX\ document.
+
+In stead of copy-pasting the calculated values into the latex document, it is possible to export them to an intermediary file that can be |\input|'ed into the \LaTeX\ document. Saving you from having to do the job twice if you changed somethng in the calculations and get a different numerical result.
+
+In what follows I'll try to desccribe how to use the \LaTeX\ macro's as well as the matlab scripts that can be used to save the values of you calculated values.
+
+
+% ABOUT NUMBERS
+\section{About numbers}
+In most scientific calculations the result comprises of several parts, usually written as
+\[ 
+	(x \pm s_x) \times 10 ^{e}
+\]
+In this notation several parts are distinguised:
+\begin{itemize}
+	\item the significand \( x \)
+	\item the uncertianty estimate or error \( s_x \)
+	\item the exponential \( e \)
+\end{itemize}
+Usually the uncertainty estimate is rounded to two \emph{significant digits}. The significand is then rounded to match the rounding of the uncertainty estimate, so that the last two significant digits match the order of magnitude of those of the uncertainty estimate. The exponent is then adapted so that the order of magnitude of the total is still correct. 
+
+Please visit \url{http://www.chemteam.info/SigFigs/SigFigs.html} for a more in depth discussion on the scientific notation.
+
+I will use the above nomenclature to denote the parts of a number. A number, consisting of all of the above parts (or a subset of them), will be denoted by the term \emph{value}. The name you give this number (what it belongs to) will be called a \emph{variable}. 
+
+So if you would type:
+\begin{center}
+	\begin{matlabcode*}{linenos=none}
+		>> a = 14e3;
+	\end{matlabcode*}
+\end{center}
+into a matlab or octave prompt, you will have created a variable called |a| with |value| that is |14e3|. This value comprises of a significand |14| and an exponent |3|. 
+
+To have a variable with a value that also has an error estimate you chould type\footnote{This is not compulsory of course, I often work using \texttt{a} and \texttt{s\_a}. Yet it is how the matlab commands that are included in this package expect you give an uncertainty value.}:
+\begin{center}
+	\begin{matlabcode*}{linenos=none}
+		>> a = [21.3 1.1]*1e3;
+	\end{matlabcode*}
+\end{center}
+To get a value that has a significand |12.1|, an exponent |3| and an uncertainty estimate |1.1|.
+
+
+
+% LATEX USAGE
+\section{\LaTeX\ usage}
+This section will discuss the correct usage of the \LaTeX\ macro's that are supplied in this package.
+
+To gain acces to the macro's put the following in the preamble of your document:
+\begin{center}
+	\begin{texcode*}{linenos=none}
+		\usepackage{mattex}
+	\end{texcode*}
+\end{center}
+This will allow you to use the macro's explained in the following sections.
+
+%% setting values
+\subsection{Setting variable values using \texttt{Mset}}
+To set a variable,  you can use following syntax:
+
+{\co|\Mset|\ARGU{name}\ARGU{significand}\ARGU{error}\ARGU{exponent}}
+
+\mrg{Mset}
+This will set the variable named \argu{name} to:
+\[ 
+	(\text{\argu{significand}} \pm \text{\argu{error}}) \times 10^{\text{\argu{exponent}}}
+\]
+Setting a variable overwrites it's previous value (if it already had a value).
+
+Some examples:
+
+\begin{minipage}[t]{0.45\textwidth}
+	\begin{texcode}
+		\Mset{a}{12}
+		\Mset{b}{123}{24}
+		\Mset{c}{34}{}{-5}
+		\Mset{d}{72}{11}{-9}
+	\end{texcode}
+\end{minipage}\hfil
+\begin{minipage}[c]{0.50\textwidth}
+\vspace{9pt}
+set the variable |a| to \num{12}\\
+set the variable |b| to \SI{123+-14}{}\\
+set the variable |c| to \SI{34e-5}{}\\
+set the variable |d| to \SI{72+-11e-9}{}\\
+\end{minipage}
+
+The names can be anything, from alphabetic letters such as |a|, |b|, $\ldots$ to numbers |0|, |1|, $\ldots$ and multicharacter comdinations of these, e.g.\ |ab10|. Also, underscores, commas and braces are allowed so it's possible to make a variable that is called~|a_crit(2,3)|.
+
+
+%% getting values
+\subsection{Getting the values}
+Depending on what you need you can get the values using one of the following macro's. Some knowledge of the |siunitx| package is advised.
+
+\bigskip
+{\co|\Mval|\ARGU{name}}
+
+\mrg{Mval}
+Gives you the significand and exponent of the variable \argu{name} as, put through the |siuntix|'s |\num| macro. So for instance |\Mval{d}| would be equal to typing~|\num{72e-9}|. This results in $\num{72e-9}$.
+
+Here is were the meaning of this package lies, you could always type the latter case, but what if the value changes? You'd have to type it all again!
+
+\bigskip
+{\co|\Merr|\ARGU{name}}
+
+\mrg{Merr}
+Gives you the same as |\Mval| but returns the uncertainty estimate instead, |\Merr{b}| results in~$\num{24}$.
+
+\bigskip
+{\co|\Mnum|\ARGU{name}}
+
+\mrg{Mnum}
+This gives you the full  value of variable \argu{name}. |\Mnum{d}| would result in~$\SI{72+-11e-9}{}$.
+
+\bigskip
+{\co|\MSI|\ARGU{name}\ARGU{unit}}
+
+\mrg{MSI}
+This results in the same as |\Mnum| but allows you to append a unit specified by \argu{unit}, as you would do using the |\SI| command from the |siuntix| package. The rules that apply for the |siunitx| package appy here too. |\Mnum{d}{\metre}| will result in:~$\SI{72+-11e-9}{\metre}$. Please also read the |siunitx| package documentation.
+
+\textbf{Note:} For all of the above commands the same rule applies: if a certain member of a variable isn't set, it wont show up in any of these commands.
+
+
+%% internals
+\subsection{Internal macro's}
+You probably won't need the following macro's, yet they might come in handy if you want to define your own stuff based on what \mt macro's. The strings that come out of the following macro's can be passed on to the |siunitx| macro's for example (which is basically what is done in the macro's above).
+
+\bigskip
+{\co|\M|\ARGU{name}}
+
+\mrg{M}
+This gets the literal string that is saved under the variable with name \argu{name}. This macro returns a simple text string such as |72+-11e-9| or |12e-23|.
+
+\bigskip
+\newpage
+{\co|\Mvallit|\ARGU{name}}\mrg{Mvallit}\\
+Gives the literal string that is saved under the significand, with exponent of variable \argu{name}. For |\Mset{e}{93}{9}{6}| this results in |93e9|.
+
+\bigskip
+{\co|\Merrlit|\ARGU{name}}
+
+\mrg{Merrlit}
+Gives the literal string that is saved under the error with exponent of variable \argu{name}. For |\Mset{f}{100}{10}{-9}| this results in~|10e-9|.
+
+
+%% Matrices
+\subsection{Matrices}
+Since commas and braces are allowed in the name of a variable, this can be used to make a matrix with indeces. There is also a matlab script that outputs matlab arrays to a decent matrix.
+
+Te generate quick matrices use the following commands:
+
+\bigskip
+{\co|\makematrix|\ARGU{name}\ARGU{N}\ARGU{M}}
+
+\mrg{makematrix}
+This builds an $N$ by $M$ matrix of the values stored in the name \argu{name}. For example one would do:
+\begin{center}
+	\begin{texcode}
+		\Mset{A(1,1)}{1}{0.1}
+		\Mset{A(1,2)}{2}{0.2}
+		\Mset{A(2,1)}{3}{0.3}
+		\Mset{A(2,2)}{4}{0.4}
+		\makematrix{A}{2}{2}
+	\end{texcode}
+\end{center}
+
+\bigskip
+{\co|\usematrix|}
+
+\mrg{usematrix}
+This allows you to use the last used |\makematrix| in a table. For instance, with the |\makematrix| command in the above example:
+
+\begin{center}
+	\begin{texcode}
+		\begin{tabular}{NM}
+			\hline
+			\usematrix
+			\hline
+		\end{tabular}
+	\end{texcode}
+\end{center}
+	
+should result in:
+\begin{table}[h]
+\centering
+	\begin{tabular}{cc}
+		\hline
+		1 & \SI{2+-0.2}{} \\
+		3 & \SI{4+-0.4}{} \\
+		\hline
+	\end{tabular}
+\end{table}
+
+There are two column types defined by \mt:
+\begin{itemize}
+	\item |N|: sets every cell of that column in an |\Mval| command.
+	\item |M|: sets every cell of that column in an |\Mnum| command.
+\end{itemize}
+
+\bigskip
+{\co |\header|}
+
+\mrg{header}
+Starts the header in a |tabular| environment. The cells are not put into the |\Mval| or |\Mnum| commands when the |N| or |M|. This can of course be used for footer or intermediary rows.
+
+\bigskip
+{\co |\noheader|}
+
+\mrg{noheader}
+Stops the header in a |tabular| environment. For example:
+\begin{center}
+	\begin{texcode}
+		\begin{tabular}{NM}
+			\hline \header
+			Hdr 1 & Hdr 2 \noheader \\
+			\hline
+			\usematrix
+			\hline
+		\end{tabular}
+	\end{texcode}
+\end{center}
+
+Which should result in:
+\begin{table}[h]
+	\centering
+	\begin{tabular}{cc}
+		\hline
+		Hdr 1 & Hdr 2 \\
+		\hline
+		1 & \SI{2+-0.2}{} \\
+		3 & \SI{4+-0.4}{} \\
+		\hline
+	\end{tabular}
+\end{table}
+
+%% Examples
+\subsection{Examples}
+This example shows how the output is when all information is set for a variable:
+
+\begin{minipage}[t]{0.45\textwidth}
+	\begin{texcode}
+		\Mset{a}{123}{45}{6} % set a
+		\Mval{a}
+		\Merr{a}
+		\Mnum{a}
+		\MSI{a}{\kilo\gram}
+		\M{a}
+		\Mvallit{a}
+		\Merrlit{a}
+	\end{texcode}
+\end{minipage}\hfil
+\begin{minipage}[c]{0.5\textwidth}
+	\vspace{6.5pt}
+	$ $\\
+	$\num{123e6}$\\
+	$\num{45e6}$\\
+	$\SI{123+-45e6}{}$\\
+	$\SI{123+-45e6}{\kilo\metre}$\\
+	|123+-45e6|\\
+	|123e6|\\
+	|45e6|
+\end{minipage}
+\bigskip
+
+The next example shows how the output is when only the value is set for a variable:
+
+\begin{minipage}[t]{0.45\textwidth}
+	\begin{texcode}
+		\Mset{b}{78} % set b 
+		\Mval{b}
+		\Merr{b}
+		\Mnum{b}
+		\MSI{b}{\kilo\gram}
+		\M{b}
+		\Mvallit{b}
+		\Merrlit{b}
+	\end{texcode}
+\end{minipage}\hfil
+\begin{minipage}[c]{0.5\textwidth}
+	\vspace{6.5pt}
+	$ $\\
+	$\num{78}$\\
+	$ $\\
+	$\SI{78}{}$\\
+	$\SI{78}{\kilo\metre}$\\
+	|78|\\
+	|78|\\
+	
+\end{minipage}
+
+
+\newpage
+This example shows you how to make a nice table from some values:
+\begin{center}
+	\begin{texcode}
+		\Mset{c(1,1)}{12.1}{1.1}
+		\Mset{c(2,1)}{13.3}{1.0}
+		\Mset{c(3,1)}{11.2}{0.9}
+		\Mset{c(4,1)}{11.9}{1.3}
+		\Mset{c(5,1)}{12.5}{0.8}
+
+		\Mset{c(1,2)}{455}{14}
+		\Mset{c(2,2)}{457}{12}
+		\Mset{c(3,2)}{453.2}{7.3}
+		\Mset{c(4,2)}{455}{13}
+		\Mset{c(5,2)}{458}{12}
+
+		\makematrix{c}{5}{2}
+		\begin{table}[htp]
+			\centering
+			\begin{tabular}{MM}
+				\hline\header
+				Head 1 & Head 2 \noheader \\
+				\hline
+				\usematrix
+				\hline \header
+				Foot 1 & Foot 2\\
+				\hline
+			\end{tabular}
+		\end{table}
+	\end{texcode}
+\end{center}
+Should result in:
+\begin{table}[h]
+	\centering
+	\begin{tabular}{cc}
+	\hline
+	Head 1 & Head 2\\
+	\hline
+	\SI{12.1+-1.1}{} & \SI{455+-14}{}\\
+	\SI{13.3+-1.0}{} & \SI{457+-12}{}\\
+	\SI{11.2+-0.9}{} & \SI{453.2+-7.3}{}\\
+	\SI{11.9+-1.3}{} & \SI{455+-13}{}\\
+	\SI{12.5+-0.8}{} & \SI{458+-12}{}\\
+	\hline
+	Foot 1 & Foot 2\\
+	\hline
+	\end{tabular}
+\end{table}
+\vspace{-1cm}
+
+
+
+%% requirements
+\subsection{Requirements}
+Several packages are needed to be able to use \mt, they are listed below:
+\begin{itemize}
+	\item |pgfkeys|: this is used to set and save the variables.
+	\item |xstring|: used to compare strings.
+	\item |siunitx|: this one should be obvious. If you need this package, you'll probably have this loaded already.
+	\item |xparse|: for the flexible defining of commands.
+	\item |array|: for the defining of new column types in tabular.
+	\item |collcell|: also used for the special tabular cells.
+\end{itemize}
+
+
+
+% MATLAB USAGE
+\section{Matlab usage}
+I've written several matlab scripts that export variables in the correct format, so that \mt can pick them up. These scripts are described in this section. 
+
+These scripts were initially written in matlab and then tested in octavei, so they should work on both. Recently I've stopped using matlab myself (octave is free!), and have switched to octave completely. However, since I come from a matlab history, my syntax hasn't changed, so I expect the scripts to work on matlab as well. The main reason why I switched to octave is that it works as a genuine compiler, so it can be used in makefiles etc. This makes the combination latex-mattex-octave extremely powerful.
+
+To use them, make sure that the files |writevars.m|, |writeallvars.m|,\\ |formatvars.m|, |writemat.m| and |parsemopts.m| are in a directory that matlab can read.
+
+\bigskip
+{\co |writevars(|\argu{file}|,|\argu{opts}|,|\argu{var1}|,|\argu{var2}|,|$\ldots$|)|}
+
+\mmrg{writevars}
+This function can be used to write variables \argu{var1}, \argu{var2}, $\ldots$ to a file called~\argu{file}. The variables are automatically formatted is such a fashion that the error (if there is one) has got two significant digits and that the value has de same meaningful digits.
+
+Through the optional argument \argu{opts} you can specify how the data should be written:
+\begin{itemize}
+	\item |a|: append the variables to the file. This is default behaviour so this option does not have to explicitly given.
+	\item |w|: write tto the file instead of appending. This clears the file before writing to it. Overwrites the default append behaviour.
+	\item |s|: be silent. This causes writevars to refrain from writing information to the prompt and causes it not to write the datestring into the file. This is generally a good idea when writing from a loop.
+	\item |e|: turns on the exponent behaviour. This causes number that have magnitude -1, 0 or 1 to be written with exponent (eg |1e-1| instead of |0.1| and |1e0| instead of |1|), which normaly would not be done.;
+	\item |#|: any number greater than or equal to 1. This number denotes the number of significant digits that will be used for the error (the number of significant digits on the value will change accordingly).
+\end{itemize}
+These options should be put in a char string (in random order). For instance~|'wse4'| will write the values using 4 significant digits. (thereby clearing the file first), not print any additional information and use scientific notation, even when the magnitude is -1, 0 or 1.
+
+The variables \emph{must} be passed by name in matlab, and they will have the same name in the \LaTeX file as the name they were passed by. To give a value with an error pass a vector (also by name) containing the value and error. 
+
+\bigskip
+{\co |writeallvars(|\argu{file}|,|\argu{opts}|)|}
+
+\mmrg{writeallvars}
+This basically does the same as |writevars| yet it searches the workspace for all the current variables that can be written (this is, scalars or vectors of size $\leq2$) and writes them. The same options as for |writevars| apply.
+
+\bigskip
+{\co |writemat(|\argu{file}|,|\argu{matrix}|,|\argu{error matrix}|)|}
+
+\mmrg{writemat}
+Writes all the elements of the matlab array \argu{matrix} to the file specified in \argu{file}, with optional errors specified in the array \argu{error matrix}. After inputting \argu{file} has been input into \LaTeX the variables are available trough:
+
+|\Mval{|\argu{matrix}|(|\argu{i}|,|\argu{j}|)}|
+
+For example the value in the third row and second column of a matrix |A| is called by |\Mnum{a(3,2)}|. This matrix is of the correct form to be used in |\makematrix|.
+
+
+% RECOMMENDED WORKFLOW
+\section{Recommended workflow}
+To get the variables from a matlab session into a \LaTeX document I recommend using the following workflow:
+\begin{enumerate}
+	\item Do the calculations in matlab. You matlab script could look like this:
+\begin{center}
+	\begin{matlabcode}
+		a = [3.4 2.9 3.5 3.1 4.5];
+		b = mean(a);
+		s_b = std(a);
+		c = [b s_b];
+		d = exp(c)*100000;
+	\end{matlabcode}
+\end{center}
+	\item Export the variables to a file |vars.tex|, using one of the above matlab m-files. Do this by adding:
+\begin{center}
+\begin{matlabcode}
+	writevars('file.tex','a',c,d);
+	\end{matlabcode}
+\end{center}
+The file |file.tex| should look like this after you run your script:
+\begin{center}
+\begin{texcode}
+		\Mset{c}{3.48}{0.62}
+		\Mset{f}{32.5}{1.9}{5}
+\end{texcode}
+\end{center}
+	\item Input the file by putting |\input{file.tex}| in the \TeX document.
+	\item Use the variables defined in |file.tex| by using the macro's described above. For instance:
+\begin{center}
+\begin{texcode}
+		\input{file.tex}
+		\Mnum{c}
+		\MSI{f}{\metre}
+\end{texcode}
+\end{center}
+
+This should result in:
+
+	\begin{minipage}[t]{\textwidth}
+	$\SI{3.48+-0.62}{}$\\
+	$\SI{32.5+-1.9e5}{\metre}$
+	\end{minipage}
+\end{enumerate}
+
+
+% THANKS
+\section{Thanks!}
+A lot of credit goes out to Joseph Wright, the editor of the |siunitx| package. I've been a devote |siunitx| user for years now. 
+
+I'm also in debt to the poeple at \url{http://tex.stackexchange.com/}, who do their best to answer every single one of my questions. 
+
+
+\printindex
+\end{document}

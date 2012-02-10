@@ -1,0 +1,179 @@
+%% The MatTeX package
+%% 
+%% Copyright 2012 by Romeo Van Snick
+%%
+%% This file may be distributed and/or modified under the 
+%% conditions of the LaTeX Project Publishing License, either
+%% version 1.2 of this license ot any later version.
+%% The latest version of this license is in:
+%%
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of 
+%% LaTeX version 1999/12/01 or later.
+%% 
+%% Matlab (c) is the property of its rightful owner.
+%% 
+%% package version: v0.1 2012/01/12
+%%
+%% email: romeovs@gmail.com
+%%
+%% note: this package is still in devolopment and I'm not a TeX guru, so errors will
+%%       exist. Feel free to email me if a bug turns up.
+%%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mattex}[2012/01/12 v1.0 a set of macros to import matlab values]
+
+% These are the required packages that need to be loaded
+\RequirePackage{pgfkeys}
+\RequirePackage{xstring}
+\RequirePackage{siunitx}
+\RequirePackage{xparse}
+\RequirePackage{array}
+\RequirePackage{collcell}
+\ProcessOptions\relax
+
+
+% PACKAGE OPTIONS
+
+% Define the name for the pgfkeys directory where the matlab variable will be stored in
+\newcommand{\mtdirectory}[0]{mtmatlab}
+
+% PACKAGE CODE
+
+% This command allows you to set a variable
+\DeclareDocumentCommand{\Mset}{m m g g}
+{
+	% set the value (mandatory)
+	\pgfkeyssetvalue{/\mtdirectory/#1/val}{#2}
+
+	% set error if it is given
+	\IfNoValueTF{#3}{
+		% if nothing was given, literally set nothing, so variables can be properly overwritten
+		\pgfkeyssetvalue{/\mtdirectory/#1/err}{}
+		\pgfkeyssetvalue{/\mtdirectory/#1/pmstr}{}
+	}{
+		% if an argument was given, check if it was empty or not
+		\IfEq{#3}{}{
+			% empty: set empty values
+			\pgfkeyssetvalue{/\mtdirectory/#1/err}{}
+			\pgfkeyssetvalue{/\mtdirectory/#1/pmstr}{}
+		}{
+			% not empty: set values
+			\pgfkeyssetvalue{/\mtdirectory/#1/err}{#3}
+			\pgfkeyssetvalue{/\mtdirectory/#1/pmstr}{+-}
+			}
+	}
+
+	% set exponent if it is given
+	\IfNoValueTF{#4}{
+		% if nothing was given, literally set nothing, so variables can be properly overwritten
+		\pgfkeyssetvalue{/\mtdirectory/#1/exp}{}
+		\pgfkeyssetvalue{/\mtdirectory/#1/estr}{}
+	}{
+		% if an argument was given, check if it was empty or not
+		\IfEq{#4}{}{
+			% empty: set all to empty
+			\pgfkeyssetvalue{/\mtdirectory/#1/exp}{}
+			\pgfkeyssetvalue{/\mtdirectory/#1/estr}{}
+		}{
+			% not empty: set values
+			\pgfkeyssetvalue{/\mtdirectory/#1/exp}{#4}
+			\pgfkeyssetvalue{/\mtdirectory/#1/estr}{e}
+		}
+	}
+
+}
+
+%% get string value
+% this allows you the see which exact string is stored in the variable
+\newcommand{\M}[1]
+{%
+	\pgfkeysvalueof{/\mtdirectory/#1/val}%
+	\pgfkeysvalueof{/\mtdirectory/#1/pmstr}%
+	\pgfkeysvalueof{/\mtdirectory/#1/err}%
+	\pgfkeysvalueof{/\mtdirectory/#1/estr}%
+	\pgfkeysvalueof{/\mtdirectory/#1/exp}%
+}
+
+%% get \SI
+% allows you to use the variable as you would use \SI from siunitx
+\newcommand{\MSI}[2]
+{
+	\SI{\M{#1}}{#2}
+}
+
+%% get error literal
+\newcommand{\Merrlit}[1]{%
+	\pgfkeysvalueof{/\mtdirectory/#1/err}%
+	\pgfkeysvalueof{/\mtdirectory/#1/estr}%
+	\pgfkeysvalueof{/\mtdirectory/#1/exp}%
+}
+
+%% get value literal
+\newcommand{\Mvallit}[1]{%
+	\pgfkeysvalueof{/\mtdirectory/#1/val}%
+	\pgfkeysvalueof{/\mtdirectory/#1/estr}%
+	\pgfkeysvalueof{/\mtdirectory/#1/exp}%
+}
+
+%% get value as \num
+\newcommand{\Mval}[1]{
+	\num{\Mvallit{#1}}
+}
+
+%% get error as \num
+\newcommand{\Merr}[1]{
+	% check if anything is in the err string and only try \num if there is
+	\IfEq{\pgfkeysvalueof{/\mtdirectory/#1/err}}{}{}{
+		\num{\Merrlit{#1}}
+	}
+}
+
+%% get error and value (no units)
+\newcommand{\Mnum}[1]{
+	\num{\M{#1}}
+}
+
+%% Make and use matrices
+\newtoks\romeotoks
+\makeatletter
+\newcommand{\makematrix}[3]{%
+	\global\romeotoks={\@gobble}%
+	\@tempcnta=\z@ \@tempcntb=\z@
+	\loop\ifnum\@tempcnta<#2
+		\advance\@tempcnta\@ne
+		{\loop\ifnum\@tempcntb<#3
+			\advance\@tempcntb\@ne
+			\edef\next{\unexpanded{#1}(\number\@tempcnta,\number\@tempcntb)}%
+			\global\romeotoks=\expandafter{\the\expandafter\romeotoks\expandafter&\next}%
+		\repeat}
+		\@tempcntb=\z@
+		\global\romeotoks=\expandafter{\the\romeotoks \\ \@gobble}%
+	\repeat
+	\global\romeotoks=\expandafter{\the\romeotoks &}%
+}
+\newcommand{\usematrix}{\the\romeotoks}
+\makeatother
+% written by egreg at stackexchange:
+% http://tex.stackexchange.com/questions/40245/pgffor-and-the-alignment-character
+
+
+%% tabular commands
+% allows one to switch on/off header behaviour 
+% if the header is on, M and N header types are ignored (just "c" columm type  applies)
+\newtoggle{inTableHeader}	% Track if still in header of table
+\toggletrue{inTableHeader}	% Set initial value
+\newcommand*{\header}{\global\toggletrue{inTableHeader}}	% set header to true
+\newcommand*{\noheader}{\global\togglefalse{inTableHeader}}	% set header to false
+
+% define the table colums
+% first define a new command that is sensitive to the inTableHeader toggle
+\newcommand*{\tabMval}[1]{\iftoggle{inTableHeader}{#1}{\Mval{#1}}} 
+\newcolumntype{N}{>{\collectcell\tabMval}c<{\endcollectcell}}
+
+\newcommand*{\tabMnum}[1]{\iftoggle{inTableHeader}{#1}{\Mnum{#1}}} %
+\newcolumntype{M}{>{\collectcell\tabMnum}c<{\endcollectcell}}
+
+%% end of file

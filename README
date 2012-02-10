@@ -1,0 +1,54 @@
+----------------------------------------------------------------------
+The MatTeX package = Integrating Matlab and TeX
+Maintained by Romeo Van Snick
+e-mail: romeovs@gmail.com
+Released under the LaTeX Project Public License v1.3c or later
+See http://www.latex-project.org/lppl.txt
+keywords: matlab, siunitx, SI
+----------------------------------------------------------------------
+
+This package provides several macros that make it easier to save
+and recall numerical variables, that have a value, an error and 
+an exponent (e.g. 123 +- 45 e 6) in a TeX document. 
+
+Macro's are supplied for quick access to these variables an to typeset them 
+according to the SI norms (using siuntix).
+
+There is also a set of matlab m-files that allow you to export variables
+from matlab in a format that is readable by TeX (using this package), with 
+the correct number of significant digits. 
+
+This makes it very easy to export the variables from matlab to an intermediary
+file, import them in TeX and use their values. 
+
+Also, there are matlab functions supplied to export an array and there are TeX
+macros that allow for typesetting these in a quick fashion.
+
+
+Installation:
+------------
+
+The package is supplied in .sty format. It requires the following packages
+to operate:
+
+ - pgfkeys
+ - xstring
+ - siuntixs
+ - xparse
+ - array
+ - collcell
+
+TODO:
+----
+
+(*) parsemopts help.
+(*) update manual to reflect recent (big) changes in the miles.
+
+Release Notes:
+-------------
+
+Not released on CTAN (yet)!
+This is a test version. Note that the project is still undergoing some big changes, 
+so usage might still change. 
+
+- added parsemopts.m for generalized options parsing
