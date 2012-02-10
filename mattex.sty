@@ -137,24 +137,24 @@
 }
 
 %% Make and use matrices
-\newtoks\romeotoks
+\newtoks\mattextoks
 \makeatletter
 \newcommand{\makematrix}[3]{%
-	\global\romeotoks={\@gobble}%
-	\@tempcnta=\z@ \@tempcntb=\z@
-	\loop\ifnum\@tempcnta<#2
-		\advance\@tempcnta\@ne
-		{\loop\ifnum\@tempcntb<#3
-			\advance\@tempcntb\@ne
-			\edef\next{\unexpanded{#1}(\number\@tempcnta,\number\@tempcntb)}%
-			\global\romeotoks=\expandafter{\the\expandafter\romeotoks\expandafter&\next}%
-		\repeat}
-		\@tempcntb=\z@
-		\global\romeotoks=\expandafter{\the\romeotoks \\ \@gobble}%
-	\repeat
-	\global\romeotoks=\expandafter{\the\romeotoks &}%
-}
-\newcommand{\usematrix}{\the\romeotoks}
+  {\global\mattextoks={}%
+  \@tempcnta=\z@ \@tempcntb=\z@
+  \loop\ifnum\@tempcnta<#2
+    \advance\@tempcnta\@ne
+    {\loop\ifnum\@tempcntb<#3
+       \advance\@tempcntb\@ne
+       \edef\next{%
+         \ifnum\@tempcntb=\@ne\else&\fi
+         \unexpanded{#1}(\number\@tempcnta,\number\@tempcntb)}%
+       \global\mattextoks=\expandafter{\the\expandafter\mattextoks\next}%
+     \repeat}%
+    \@tempcntb=\z@
+    \global\mattextoks=\expandafter{\the\mattextoks \\ }%
+  \repeat}%
+  \the\mattextoks}
 \makeatother
 % written by egreg at stackexchange:
 % http://tex.stackexchange.com/questions/40245/pgffor-and-the-alignment-character
