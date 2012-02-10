@@ -44,7 +44,8 @@ to operate:
 TODO:
 ----
 
-(*) update manual to reflect recent (big) changes in the miles.
+(*) update manual to reflect recent (big) changes in the mfiles.
+(*) fix makematrix and collcell clash
 
 Release Notes:
 -------------

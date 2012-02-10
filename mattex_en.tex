@@ -58,14 +58,14 @@
 % INTRO
 \mt is a rudimentary set of \LaTeX\ macros and matlab scripts that try to make your life easier when you are working with calculated matlab or octave numerical values in a \LaTeX\ document.
 
-In stead of copy-pasting the calculated values into the latex document, it is possible to export them to an intermediary file that can be |\input|'ed into the \LaTeX\ document. Saving you from having to do the job twice if you changed somethng in the calculations and get a different numerical result.
+In stead of copy-pasting the calculated values into the latex document, it is possible to export them to an intermediary file that can be |\input|'ed into the document. Saving you from having to do the job twice if you changed somethng in the calculations and get a different numerical result.
 
-In what follows I'll try to desccribe how to use the \LaTeX\ macro's as well as the matlab scripts that can be used to save the values of you calculated values.
+In what follows I'll try to desccribe how to use the \LaTeX\ macro's as well as the matlab scripts that can be used to save the values of you calculated values. But first, a very short introduction into the nomenclature of the scientific notation.
 
 
 % ABOUT NUMBERS
 \section{About numbers}
-In most scientific calculations the result comprises of several parts, usually written as
+The standard (as far as I know) way to scientifically write a number is generally:
 \[ 
 	(x \pm s_x) \times 10 ^{e}
 \]
@@ -75,11 +75,11 @@ In this notation several parts are distinguised:
 	\item the uncertianty estimate or error \( s_x \)
 	\item the exponential \( e \)
 \end{itemize}
-Usually the uncertainty estimate is rounded to two \emph{significant digits}. The significand is then rounded to match the rounding of the uncertainty estimate, so that the last two significant digits match the order of magnitude of those of the uncertainty estimate. The exponent is then adapted so that the order of magnitude of the total is still correct. 
+Usually the uncertainty estimate is rounded off to two \emph{significant digits}. The significand is then rounded to match the rounding of the uncertainty estimate, so that the last two significant digits match the order of magnitude of those of the uncertainty estimate. The exponent is then adapted so that the order of magnitude of the total is still correct. 
 
 Please visit \url{http://www.chemteam.info/SigFigs/SigFigs.html} for a more in depth discussion on the scientific notation.
 
-I will use the above nomenclature to denote the parts of a number. A number, consisting of all of the above parts (or a subset of them), will be denoted by the term \emph{value}. The name you give this number (what it belongs to) will be called a \emph{variable}. 
+I will use the above nomenclature to denote the parts of a number. A number, consisting of all of the above parts (or a subset of them), will be denoted by the term \emph{value}. The name you give this number (i.e. the place you store it in) will be called a \emph{variable}. 
 
 So if you would type:
 \begin{center}
@@ -87,9 +87,9 @@ So if you would type:
 		>> a = 14e3;
 	\end{matlabcode*}
 \end{center}
-into a matlab or octave prompt, you will have created a variable called |a| with |value| that is |14e3|. This value comprises of a significand |14| and an exponent |3|. 
+into a matlab or octave prompt, you will have created a variable called |a| with |value| that is |14e3|. This value is compromised of a significand |14| and an exponent |3|. 
 
-To have a variable with a value that also has an error estimate you chould type\footnote{This is not compulsory of course, I often work using \texttt{a} and \texttt{s\_a}. Yet it is how the matlab commands that are included in this package expect you give an uncertainty value.}:
+To have a variable with a value that also has an error estimate you should type\footnote{This of couse can be done in other ways, yet is the necessary method to add variables and their error in the matlab scripts that join the \mt package.}:
 \begin{center}
 	\begin{matlabcode*}{linenos=none}
 		>> a = [21.3 1.1]*1e3;
@@ -142,45 +142,59 @@ set the variable |c| to \SI{34e-5}{}\\
 set the variable |d| to \SI{72+-11e-9}{}\\
 \end{minipage}
 
-The names can be anything, from alphabetic letters such as |a|, |b|, $\ldots$ to numbers |0|, |1|, $\ldots$ and multicharacter comdinations of these, e.g.\ |ab10|. Also, underscores, commas and braces are allowed so it's possible to make a variable that is called~|a_crit(2,3)|.
+The names can be almost anything, from alphabetic letters such as |a|, |b|, $\ldots$ to numbers |0|, |1|, $\ldots$ and multicharacter comdinations of these, e.g.\ |ab10|. Also, underscores, commas and braces are allowed so it's possible to make a variable that is called~|a_crit(2,3)|. The only thing I know of that is not allowed are, for obvious reasons, the tex active characters such as |\|, |{|, |}|, |[| and |]|.
 
 
 %% getting values
 \subsection{Getting the values}
-Depending on what you need you can get the values using one of the following macro's. Some knowledge of the |siunitx| package is advised.
+Dependig on shoch parts of the value of a variable you need, you can use different macro's to get them (note that some knowledge of the |siunitx| package is advised while reading this section).
+
+In what follows we will assume a variable was set as follows:
+\begin{center}
+	\begin{texcode}
+		\Mset{e}{72}{11}{-9}
+	\end{texcode}
+\end{center}
 
 \bigskip
 {\co|\Mval|\ARGU{name}}
 
 \mrg{Mval}
-Gives you the significand and exponent of the variable \argu{name} as, put through the |siuntix|'s |\num| macro. So for instance |\Mval{d}| would be equal to typing~|\num{72e-9}|. This results in $\num{72e-9}$.
+Gives you the significand and exponent of the variable \argu{name} as if put through the |\num| macro. So for instance |\Mval{e}| would be equal to typing~|\num{72e-9}|. The typeset result should be: $\num{72e-9}$.
 
-Here is were the meaning of this package lies, you could always type the latter case, but what if the value changes? You'd have to type it all again!
+Here is were the reason d'\^{e}tre of this package lies. You could of course just have typed in |\num{72e-9}| in stead of going trough the hassle of first assigning this value to a variable and then getting it, yet this has a number of disadvantages compared to the \mt approach:
+\begin{itemize}
+	\item consistency: will the number you enter be entered consistenly troughout the document? Chances are you type a mistake or change notation in the middle of a document.
+	\item what if you made a mistake in the matlab calculations? You'd have to do a lot of work over again, editing each occurence of the variable in the document, possibly missing some occureces.
+	\item you really have to do the work of copy pasting tha value over from matlab yourself. This, to me is perhaps the biggest disadvantage. Using the mattex package, you can let your latex and matlab files coexist in a makefile and compile the whole bunch in one go, without the need of you interviening to copy-paste stuff over.
+\end{itemize}
+
+The name |\Mval| might seem a bit in contradiction to the nomenclature of this manual, but it makes sense: you only want the calculated \emph{value} of a variable\footnote{here value denotes significand with exponent.}.
 
 \bigskip
 {\co|\Merr|\ARGU{name}}
 
 \mrg{Merr}
-Gives you the same as |\Mval| but returns the uncertainty estimate instead, |\Merr{b}| results in~$\num{24}$.
+Gives you the same as |\Mval| but returns the uncertainty estimate instead, |\Merr{e}| results in~$\num{11}$.
 
 \bigskip
 {\co|\Mnum|\ARGU{name}}
 
 \mrg{Mnum}
-This gives you the full  value of variable \argu{name}. |\Mnum{d}| would result in~$\SI{72+-11e-9}{}$.
+This gives you the full value of variable \argu{name}. |\Mnum{d}| would result in~$\SI{72+-11e-9}{}$.
 
 \bigskip
 {\co|\MSI|\ARGU{name}\ARGU{unit}}
 
 \mrg{MSI}
-This results in the same as |\Mnum| but allows you to append a unit specified by \argu{unit}, as you would do using the |\SI| command from the |siuntix| package. The rules that apply for the |siunitx| package appy here too. |\Mnum{d}{\metre}| will result in:~$\SI{72+-11e-9}{\metre}$. Please also read the |siunitx| package documentation.
+This results in the same as |\Mnum| but allows you to append a unit specified by \argu{unit}, as you would do using the |\SI| command from the |siuntix| package. The rules that apply for the |siunitx| package appy here too as well as the settings you may have set for it. |\Mnum{d}{\metre}| will result in:~$\SI{72+-11e-9}{\metre}$. Please also read the |siunitx| package documentation.
 
-\textbf{Note:} For all of the above commands the same rule applies: if a certain member of a variable isn't set, it wont show up in any of these commands.
+\textbf{Note:} For all of the above commands the same rule applies: if a certain part of a variable isn't set, it wont show up in any of these commands. So if we were to redifine our value |d| to |\Mval{72}{}{-9}| (i.e. without an error estimate set), |\Mval| would remain the same, |\Merr| would result in literally `nothing' and |\Mnum| would be equal to |\Mval|.
 
 
 %% internals
 \subsection{Internal macro's}
-You probably won't need the following macro's, yet they might come in handy if you want to define your own stuff based on what \mt macro's. The strings that come out of the following macro's can be passed on to the |siunitx| macro's for example (which is basically what is done in the macro's above).
+You probably won't need the following macro's, yet they might come in handy if you want to define your own stuff based on what \mt macro's can do. The strings that come out of the following macro's can be passed on to the |siunitx| macro's for example (which is basically what is done in the macro's above).
 
 \bigskip
 {\co|\M|\ARGU{name}}
@@ -189,9 +203,8 @@ You probably won't need the following macro's, yet they might come in handy if y
 This gets the literal string that is saved under the variable with name \argu{name}. This macro returns a simple text string such as |72+-11e-9| or |12e-23|.
 
 \bigskip
-\newpage
 {\co|\Mvallit|\ARGU{name}}\mrg{Mvallit}\\
-Gives the literal string that is saved under the significand, with exponent of variable \argu{name}. For |\Mset{e}{93}{9}{6}| this results in |93e9|.
+Gives the literal string that is saved under the significand and exponent of variable \argu{name}. For |\Mset{e}{93}{9}{6}| this results in |93e9|.
 
 \bigskip
 {\co|\Merrlit|\ARGU{name}}
@@ -202,7 +215,7 @@ Gives the literal string that is saved under the error with exponent of variable
 
 %% Matrices
 \subsection{Matrices}
-Since commas and braces are allowed in the name of a variable, this can be used to make a matrix with indeces. There is also a matlab script that outputs matlab arrays to a decent matrix.
+Since commas and braces are allowed in the name of a variable, this can be used to make a matrix with indeces. There is also a matlab script that outputs matlab arrays to variables that \mt-readable (see |writemat|).
 
 Te generate quick matrices use the following commands:
 
@@ -210,28 +223,23 @@ Te generate quick matrices use the following commands:
 {\co|\makematrix|\ARGU{name}\ARGU{N}\ARGU{M}}
 
 \mrg{makematrix}
-This builds an $N$ by $M$ matrix of the values stored in the name \argu{name}. For example one would do:
+This builds an $N$ by $M$ matrix of the variables stored in the name \argu{name}. To make a two by two matrix called |A| one would do:
 \begin{center}
 	\begin{texcode}
 		\Mset{A(1,1)}{1}{0.1}
 		\Mset{A(1,2)}{2}{0.2}
 		\Mset{A(2,1)}{3}{0.3}
 		\Mset{A(2,2)}{4}{0.4}
-		\makematrix{A}{2}{2}
 	\end{texcode}
 \end{center}
 
-\bigskip
-{\co|\usematrix|}
-
-\mrg{usematrix}
-This allows you to use the last used |\makematrix| in a table. For instance, with the |\makematrix| command in the above example:
-
+to use this matrix one then would do:
 \begin{center}
 	\begin{texcode}
 		\begin{tabular}{NM}
+			\noheader
 			\hline
-			\usematrix
+			\makematrix{A}{2}{2}
 			\hline
 		\end{tabular}
 	\end{texcode}
@@ -258,7 +266,8 @@ There are two column types defined by \mt:
 {\co |\header|}
 
 \mrg{header}
-Starts the header in a |tabular| environment. The cells are not put into the |\Mval| or |\Mnum| commands when the |N| or |M|. This can of course be used for footer or intermediary rows.
+Starts the header in a |tabular| environment. The cells on each row after the |\header| macro are not put into the |\Mval| or |\Mnum| commands even when the |N| or |M| columns are used. 
+
 
 \bigskip
 {\co |\noheader|}
@@ -290,7 +299,11 @@ Which should result in:
 	\end{tabular}
 \end{table}
 
+|\header| and |\noheader|, of course, can also be used for footer or intermediary rows.
+
+
 %% Examples
+\newpage
 \subsection{Examples}
 This example shows how the output is when all information is set for a variable:
 
@@ -345,8 +358,6 @@ The next example shows how the output is when only the value is set for a variab
 	
 \end{minipage}
 
-
-\newpage
 This example shows you how to make a nice table from some values:
 \begin{center}
 	\begin{texcode}
@@ -414,11 +425,11 @@ Several packages are needed to be able to use \mt, they are listed below:
 
 % MATLAB USAGE
 \section{Matlab usage}
-I've written several matlab scripts that export variables in the correct format, so that \mt can pick them up. These scripts are described in this section. 
+With \mt come several matlab scripts that export variables in the correct format, so that \mt can pick them up. These scripts are described in this section. 
 
-These scripts were initially written in matlab and then tested in octavei, so they should work on both. Recently I've stopped using matlab myself (octave is free!), and have switched to octave completely. However, since I come from a matlab history, my syntax hasn't changed, so I expect the scripts to work on matlab as well. The main reason why I switched to octave is that it works as a genuine compiler, so it can be used in makefiles etc. This makes the combination latex-mattex-octave extremely powerful.
+The scripts were initially written in matlab and then tested in octave, so they should work on both. Recently, however, I've stopped using matlab myself and have switched to octave completely. However, since I come from a matlab history, my syntax hasn't changed, so I expect the scripts to work with matlab as well. The main reason why I switched to octave is that it works as a genuine compiler, so it can be used in makefiles etc. This makes the combination latex-mattex-octave extremely powerful. What follows is applicable to octave as well as to matlab.
 
-To use them, make sure that the files |writevars.m|, |writeallvars.m|,\\ |formatvars.m|, |writemat.m| and |parsemopts.m| are in a directory that matlab can read.
+To use the scripts, make sure that the files |writevars.m|, |writeallvars.m|,\\ |formatvars.m|, |writemat.m| and |parsemopts.m| are in a directory that matlab can read.
 
 \bigskip
 {\co |writevars(|\argu{file}|,|\argu{opts}|,|\argu{var1}|,|\argu{var2}|,|$\ldots$|)|}
