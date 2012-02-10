@@ -24,6 +24,9 @@ file, import them in TeX and use their values.
 Also, there are matlab functions supplied to export an array and there are TeX
 macros that allow for typesetting these in a quick fashion.
 
+This project is now up on GitHub, so you can contribute if you feel you want to!
+https://github.com/romeovs/mattex
+
 
 Installation:
 ------------
@@ -41,7 +44,6 @@ to operate:
 TODO:
 ----
 
-(*) parsemopts help.
 (*) update manual to reflect recent (big) changes in the miles.
 
 Release Notes:
