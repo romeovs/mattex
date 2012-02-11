@@ -137,31 +137,12 @@
 }
 
 %% Make and use matrices
-% \newtoks\mattextoks
-% \makeatletter
-% \newcommand{\makematrix}[3]{%
-%   {\global\mattextoks={}%
-%   \@tempcnta=\z@ \@tempcntb=\z@
-%   \loop\ifnum\@tempcnta<#2
-%     \advance\@tempcnta\@ne
-%     {\loop\ifnum\@tempcntb<#3
-%        \advance\@tempcntb\@ne
-%        \edef\next{%
-%          \ifnum\@tempcntb=\@ne\else&\fi
-%          \unexpanded{#1}(\number\@tempcnta,\number\@tempcntb)}%
-%        \global\mattextoks=\expandafter{\the\expandafter\mattextoks\next}%
-%      \repeat}%
-%     \@tempcntb=\z@
-%     \global\mattextoks=\expandafter{\the\mattextoks \\ }%
-%   \repeat}%
-%   \the\mattextoks}
-% \makeatother
 
 \ExplSyntaxOn
 \tl_new:N \l_romeo_cells_tl
 \int_new:N \l_romeo_row_int
 \int_new:N \l_romeo_col_int
-\NewDocumentCommand{ \makematrix } { O{} m m m }
+\NewDocumentCommand { \preparematrix } { O{} m m m }
   {
    \tl_set:Nn \l_romeo_cells_tl { }
    \int_set:Nn \l_romeo_row_int { #3 }
@@ -174,11 +155,11 @@
          \tl_put_right:Nn \l_romeo_cells_tl
            { #2 ( ##1 , ####1 ) }
         }
-      \tl_put_right:Nn \l_romeo_cells_tl{ \\ #1 }
+      \tl_put_right:Nn \l_romeo_cells_tl { \\ #1 }
      }
-   \tl_use:N \l_romeo_cells_tl
   }
-\ExplSyntaxOff
+\DeclareExpandableDocumentCommand{ \usematrix } { }
+  { \tl_use:N \l_romeo_cells_tl }
 % written by egreg at stackexchange:
 % http://tex.stackexchange.com/questions/40245/pgffor-and-the-alignment-character
 
