@@ -143,23 +143,23 @@
 \int_new:N \l_romeo_row_int
 \int_new:N \l_romeo_col_int
 \NewDocumentCommand { \preparematrix } { O{} m m m }
-  {
-   \tl_set:Nn \l_romeo_cells_tl { }
-   \int_set:Nn \l_romeo_row_int { #3 }
-   \int_set:Nn \l_romeo_col_int { #4 }
-   \prg_stepwise_inline:nnnn { 1 } { 1 } { \l_romeo_row_int }
-     {
-      \prg_stepwise_inline:nnnn { 1 } { 1 } { \l_romeo_col_int }
-        {
-         \int_compare:nF { ####1 = 1 } { \tl_put_right:Nn \l_romeo_cells_tl { & } }
-         \tl_put_right:Nn \l_romeo_cells_tl
-           { #2 ( ##1 , ####1 ) }
-        }
-      \tl_put_right:Nn \l_romeo_cells_tl { \\ #1 }
-     }
-  }
+{
+	\tl_set:Nn \l_romeo_cells_tl { }
+	\int_set:Nn \l_romeo_row_int { #3 }
+	\int_set:Nn \l_romeo_col_int { #4 }
+	\prg_stepwise_inline:nnnn { 1 } { 1 } { \l_romeo_row_int }
+	{
+		\prg_stepwise_inline:nnnn { 1 } { 1 } { \l_romeo_col_int }
+		{
+			\int_compare:nF { ####1 = 1 } { \tl_put_right:Nn \l_romeo_cells_tl { & } }
+			\tl_put_right:Nn \l_romeo_cells_tl
+			{ #2 ( ##1 , ####1 ) }
+		}
+		\tl_put_right:Nn \l_romeo_cells_tl { \\ #1 }
+	}
+}
 \DeclareExpandableDocumentCommand{ \usematrix } { }
-  { \tl_use:N \l_romeo_cells_tl }
+{ \tl_use:N \l_romeo_cells_tl }
 % written by egreg at stackexchange:
 % http://tex.stackexchange.com/questions/40245/pgffor-and-the-alignment-character
 
@@ -175,9 +175,12 @@
 % define the table colums
 % first define a new command that is sensitive to the inTableHeader toggle
 \newcommand*{\tabMval}[1]{\iftoggle{inTableHeader}{#1}{\Mval{#1}}} 
-\newcolumntype{N}{>{\collectcell\tabMval}c<{\endcollectcell}}
+\newcolumntype{v}{>{\collectcell\tabMval}c<{\endcollectcell}}
 
 \newcommand*{\tabMnum}[1]{\iftoggle{inTableHeader}{#1}{\Mnum{#1}}}
-\newcolumntype{M}{>{\collectcell\tabMnum}c<{\endcollectcell}}
+\newcolumntype{n}{>{\collectcell\tabMnum}c<{\endcollectcell}}
+
+\newcommand*{\tabMerr}[1]{\iftoggle{inTableHeader}{#1}{\Merr{#1}}}
+\newcolumntype{e}{>{\collectcell\tabMerr}c<{\endcollectcell}}
 
 %% end of file
