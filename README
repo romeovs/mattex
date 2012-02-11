@@ -44,14 +44,10 @@ to operate:
 TODO:
 ----
 
-(*) update manual to reflect recent (big) changes in the mfiles.
-(*) fix makematrix and collcell clash
-
 Release Notes:
 -------------
 
-Not released on CTAN (yet)!
-This is a test version. Note that the project is still undergoing some big changes, 
-so usage might still change. 
-
 - added parsemopts.m for generalized options parsing
+- update manual to reflect recent (big) changes in the mfiles.
+- fix makematrix and collcell clash
+
