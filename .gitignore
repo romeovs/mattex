@@ -1,0 +1,22 @@
+# ignore latex intermediaries
+*.log
+*.aux
+*.fdb_latexmk
+*.idx
+*.ilg
+*.out
+*.pdf
+*.fmt
+*.table
+*.gnuplot
+*.tikz
+*.dpth
+*.pyg
+*.run.xml
+*.ind
+*.auxlock
+*.bbl
+*.blg
+*-blx.bib
+*/tikz/*
+tikz/*
